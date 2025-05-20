@@ -4,6 +4,7 @@
 #localização (latitude, longitude)
 #status (disponivel, em missão, Inativo)
 from extensions import banco
+from sqlalchemy import Enum
 
 
 class Herois(banco.Model):
@@ -12,23 +13,28 @@ class Herois(banco.Model):
     id_hero = banco.Column(banco.Integer, primary_key=True)
     nome = banco.Column(banco.String(60))
     rank = banco.Column(banco.String(10))
-    localizacao = ()#ver qual a necessidade do banco para localização
-    status = ()#criar para os tres unicos status)
+    latitude = banco.Column(banco.float)#utilizar assim para consistencia de dados
+    longitude = banco.Column(banco.float)#utilizar assim para consistencia de dados
+    status = banco.Column(banco.Enum('Disponível', 'Em missão', 'Inativo', name='status_enum')) #garante que somente os 3 status sejam aceitos pelo banco e pelo python
 
-    def __init__(self, id_hero, nome, rank, localizacao, status):
+
+    def __init__(self, id_hero, nome, rank,status, latitude, longitude):
         self.id_hero = id_hero,
         self.nome = nome,
         self.rank = rank,
-        self.localizacao = localizacao
-        self.status = status
+        self.status = status,
+        self.latitude = latitude,
+        self.longitude = longitude
 
     def json(self):
         return {
             'id_hero': self.id_hero,
             'nome': self.nome,
             'rank': self.rank,
-            'localizacao': self.localizacao,
-            'status': self.status
+            'status': self.status,
+            'localizacao': {self.latitude,
+                            self.longitude
+                            },
         }
 
     def save_hero(self):
