@@ -17,6 +17,8 @@ class Herois(banco.Model):
     longitude = banco.Column(banco.float)#utilizar assim para consistencia de dados
     status = banco.Column(banco.Enum('Disponível', 'Em missão', 'Inativo', name='status_enum')) #garante que somente os 3 status sejam aceitos pelo banco e pelo python
 
+    
+
 
     def __init__(self, id_hero, nome, rank,status, latitude, longitude):
         self.id_hero = id_hero,
