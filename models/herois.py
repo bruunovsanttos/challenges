@@ -36,7 +36,8 @@ class Herois(banco.Model):
             'status': self.status,
             'localizacao': {self.latitude,
                             self.longitude
-                            },
+                            }#se utiliza assim para que o local seja lido de forma correta
+            # ,
         }
 
     def save_hero(self):
