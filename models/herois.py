@@ -7,64 +7,62 @@ from extensions import banco
 from sqlalchemy import Enum
 
 
+from extensions import banco
+
+
 class Herois(banco.Model):
     __tablename__ = "herois"
 
     id_hero = banco.Column(banco.Integer, primary_key=True)
-    nome = banco.Column(banco.String(60))
-    rank = banco.Column(banco.String(10))
-    latitude = banco.Column(banco.float)#utilizar assim para consistencia de dados
-    longitude = banco.Column(banco.float)#utilizar assim para consistencia de dados
-    status = banco.Column(banco.Enum('Disponível', 'Em missão', 'Inativo', name='status_enum')) #garante que somente os 3 status sejam aceitos pelo banco e pelo python
+    nome = banco.Column(banco.String(60), nullable=False)
+    rank = banco.Column(banco.String(10), nullable=False)
+    latitude = banco.Column(banco.Float, nullable=False)
+    longitude = banco.Column(banco.Float, nullable=False)
+    status = banco.Column(
+        banco.Enum("Disponível", "Em missão", "Inativo", name="status_enum"),
+        nullable=False,
+        default="Disponível"
+    )
 
-    
-
-
-    def __init__(self, id_hero, nome, rank,status, latitude, longitude):
-        self.id_hero = id_hero,
-        self.nome = nome,
-        self.rank = rank,
-        self.status = status,
-        self.latitude = latitude,
+    def __init__(self, nome, rank, status, latitude, longitude):
+        self.nome = nome
+        self.rank = rank
+        self.status = status
+        self.latitude = latitude
         self.longitude = longitude
 
     def json(self):
         return {
-            'id_hero': self.id_hero,
-            'nome': self.nome,
-            'rank': self.rank,
-            'status': self.status,
-            'localizacao': {self.latitude,
-                            self.longitude
-                            }#se utiliza assim para que o local seja lido de forma correta
-            # ,
+            "id_hero": self.id_hero,
+            "nome": self.nome,
+            "rank": self.rank,
+            "status": self.status,
+            "localizacao": {
+                "latitude": self.latitude,
+                "longitude": self.longitude
+            }
         }
 
     def save_hero(self):
         banco.session.add(self)
         banco.session.commit()
 
-    def update_hero(self, nome, rank, localizacao, status):
+    def update_hero(self, nome, rank, latitude, longitude, status):
         self.nome = nome
         self.rank = rank
-        self.localizacao = localizacao
+        self.latitude = latitude
+        self.longitude = longitude
         self.status = status
+        banco.session.commit()
 
-    @classmethod
-    def delete_hero(cls, id_hero):
-        hero = cls.find_hero(id_hero)
-        if hero:
-            banco.session.delete(hero)
-            banco.session.commit()
+    def delete_hero(self):
+        banco.session.delete(self)
+        banco.session.commit()
 
     @classmethod
     def find_hero(cls, id_hero):
-        hero = cls.query.filter_by(id_hero=id_hero).first()#chamando o primeiro heroi com o id
-        if hero:
-            return hero
-        return None
+        return cls.query.filter_by(id_hero=id_hero).first()
 
     @classmethod
     def buscar_por_rank(cls, rank):
-        return cls.query.filter_by(rank=rank).all()#busca herois opr rank para chamar no combate
-
+        return cls.query.filter_by(rank=rank).all()
